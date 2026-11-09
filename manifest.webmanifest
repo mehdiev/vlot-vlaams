@@ -1,12 +1,12 @@
 {
   "name": "Vlot Vlaams — Belgian Dutch",
   "short_name": "Vlot Vlaams",
-  "description": "A private, adaptive Belgian-Dutch learning app built around 1,000 conversational words.",
+  "description": "A private Belgian-Dutch learning app with 4,000 conversational words, YouTube sentence lessons, speech practice, and adaptive review.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f6f1e7",
-  "theme_color": "#173f48",
+  "background_color": "#f4f8f7",
+  "theme_color": "#0b3b35",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]

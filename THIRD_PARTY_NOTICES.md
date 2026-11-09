@@ -8,4 +8,6 @@ Vlot Vlaams is original application code released under the MIT License. Its gen
 
 The generated file `data/words.js` keeps source labels on every entry. The 50 Belgian-Dutch entries and their example sentences were independently curated for this project using public language guidance, including the Dutch Language Institute/Taalunie reference material and Flemish language-advice resources.
 
+The optional YouTube Sentence Lab uses Jina AI Reader to request the public page or public caption endpoint for the YouTube URL entered by the learner. No account data or private video access is requested.
+
 The A0–C1 labels in this app are curriculum bands, not official CEFR certifications or official word-level assignments.

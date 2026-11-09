@@ -2,7 +2,7 @@
   "name": "vlot-vlaams",
   "version": "1.0.0",
   "private": true,
-  "description": "A static Belgian-Dutch learning app with 1,000 conversational words and local adaptive review.",
+  "description": "A static Belgian-Dutch learning app with 4,000 conversational words, YouTube sentence lessons, and local adaptive review.",
   "scripts": {
     "generate:data": "node scripts/generate-dataset.mjs",
     "test": "node --test tests/*.test.mjs"

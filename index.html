@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173f48">
-  <meta name="description" content="Learn Belgian Dutch through 1,000 conversational words, real sentences, adaptive review, flashcards, and browser-based pronunciation feedback.">
+  <meta name="theme-color" content="#0b3b35">
+  <meta name="description" content="Learn Belgian Dutch through 4,000 conversational words, YouTube sentence lessons, Anki-style review, quizzes, and pronunciation feedback.">
   <title>Vlot Vlaams — Belgian Dutch from A0 to C1</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
   <header class="app-header">
@@ -16,11 +16,12 @@
       <span><strong>Vlot Vlaams</strong><small>Belgian Dutch, naturally</small></span>
     </a>
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <button class="nav-item active" data-page="home">Home</button>
-      <button class="nav-item" data-page="path">Path</button>
-      <button class="nav-item" data-page="words">1,000 words</button>
-      <button class="nav-item" data-page="cards">Cards</button>
-      <button class="nav-item" data-page="speak">Speak</button>
+      <button class="nav-item active" data-page="home"><span class="nav-icon">⌂</span>Home</button>
+      <button class="nav-item" data-page="words"><span class="nav-icon">Aa</span>Words</button>
+      <button class="nav-item" data-page="cards"><span class="nav-icon">◇</span>Cards</button>
+      <button class="nav-item" data-page="speak"><span class="nav-icon">◖</span>Speak</button>
+      <button class="nav-item" data-page="video"><span class="nav-icon">▶</span>YouTube</button>
+      <button class="nav-item" data-page="quiz"><span class="nav-icon">✓</span>Quiz</button>
       <button class="nav-item lab-nav" data-page="lab"><span>✦</span> AI Lab</button>
     </nav>
     <div class="header-streak" title="Current learning streak"><span>🔥</span><strong id="header-streak">0</strong><small>days</small></div>
@@ -30,15 +31,15 @@
     <section class="page active" id="page-home" aria-labelledby="home-title">
       <div class="hero-shell">
         <div class="hero-copy">
-          <span class="eyebrow light">BELGIAN DUTCH · 1,000 CONVERSATIONAL WORDS</span>
+          <span class="eyebrow light">BELGIAN DUTCH · 4,000 CONVERSATIONAL WORDS</span>
           <h1 id="home-title">From your first <em>goeiedag</em> to confident conversation.</h1>
           <p>Learn the words people actually use in Flanders—inside real sentences, with Belgian pronunciation, adaptive review, and honest feedback on your speaking.</p>
           <div class="hero-actions">
             <button class="primary-button warm" data-page="cards">Start today’s practice <span>→</span></button>
-            <button class="text-button light" data-page="path">See the A0–C1 path</button>
+            <button class="text-button light" data-page="video">Learn from a YouTube video</button>
           </div>
           <div class="hero-proof">
-            <span><b>1,000</b> useful words</span>
+            <span><b>4,000</b> useful words</span>
             <span><b>6</b> learning bands</span>
             <span><b>0</b> accounts or ads</span>
           </div>
@@ -69,58 +70,53 @@
       </div>
 
       <div class="section-heading split-heading">
-        <div><span class="eyebrow">BUILT FOR REAL CONVERSATION</span><h2>One course, four ways to make it stick.</h2></div>
+        <div><span class="eyebrow">BUILT FOR REAL CONVERSATION</span><h2>One course, six ways to make it stick.</h2></div>
         <p>Every activity writes to the same private learner model on this device, so practice becomes more personal over time.</p>
       </div>
       <div class="feature-grid">
-        <button class="feature-card feature-path" data-page="path">
-          <span class="feature-number">01</span><span class="feature-symbol">↗</span>
-          <h3>A guided path</h3><p>Move through six bands from survival phrases to nuanced conversation.</p><b>Explore the path →</b>
-        </button>
         <button class="feature-card feature-words" data-page="words">
-          <span class="feature-number">02</span><span class="feature-symbol">Aa</span>
-          <h3>Words in context</h3><p>Meaning, IPA, authentic bilingual examples, and Belgian usage notes.</p><b>Browse all words →</b>
+          <span class="feature-number">01</span><span class="feature-symbol">Aa</span>
+          <h3>4,000 words</h3><p>Meaning, IPA, authentic bilingual examples, and Belgian usage notes.</p><b>Browse the vocabulary →</b>
+        </button>
+        <button class="feature-card feature-cards" data-page="cards">
+          <span class="feature-number">02</span><span class="feature-symbol">◇</span>
+          <h3>Anki-style cards</h3><p>Again, Hard, Good, and Easy schedule each word at the right distance.</p><b>Start a review →</b>
         </button>
         <button class="feature-card feature-speak" data-page="speak">
           <span class="feature-number">03</span><span class="feature-symbol">)))</span>
           <h3>Listen and speak</h3><p>Hear a Belgian-Dutch voice and compare your transcript with the target.</p><b>Open speech coach →</b>
         </button>
-        <button class="feature-card feature-lab" data-page="lab">
+        <button class="feature-card feature-video" data-page="video">
           <span class="feature-number">04</span><span class="feature-symbol">✦</span>
+          <h3>YouTube lessons</h3><p>Paste a video link and turn its Dutch transcript into sentence-by-sentence study.</p><b>Open Video Lab →</b>
+        </button>
+        <button class="feature-card feature-quiz" data-page="quiz">
+          <span class="feature-number">05</span><span class="feature-symbol">✓</span>
+          <h3>Quick quiz</h3><p>Test Dutch to English or English to Dutch with focused ten-question rounds.</p><b>Take a quiz →</b>
+        </button>
+        <button class="feature-card feature-lab" data-page="lab">
+          <span class="feature-number">06</span><span class="feature-symbol">✦</span>
           <h3>Adaptive AI Lab</h3><p>A local model learns your recall, timing, lapses, and pronunciation.</p><b>See your study model →</b>
         </button>
       </div>
 
       <aside class="truth-note">
         <span class="truth-mark">i</span>
-        <div><strong>An honest note about C1</strong><p>One thousand words alone do not make anyone C1. This app uses A0–C1 as increasingly demanding learning bands for a core conversational vocabulary. Real C1 also needs thousands more words, long-form listening, writing, feedback, and regular conversation.</p></div>
-      </aside>
-    </section>
-
-    <section class="page" id="page-path" aria-labelledby="path-title">
-      <div class="page-hero compact-hero">
-        <div><span class="eyebrow light">YOUR LEARNING MAP</span><h1 id="path-title">A clear route through the core 1,000.</h1><p>Twenty small units. Every band adds more vocabulary, faster listening, and more demanding sentence work.</p></div>
-        <div class="path-summary"><span>Overall mastery</span><strong id="path-overall">0%</strong><div class="mini-progress"><i id="path-overall-bar"></i></div></div>
-      </div>
-      <div class="level-legend" aria-label="Path legend"><span><i class="legend-new"></i>Not started</span><span><i class="legend-active"></i>In progress</span><span><i class="legend-done"></i>Strong</span></div>
-      <div class="level-stack" id="level-stack"></div>
-      <aside class="method-card">
-        <div><span class="eyebrow">HOW PROGRESSION WORKS</span><h2>Mastery, not scrolling.</h2></div>
-        <ol><li><b>Recognize</b><span>Understand the word and its sentence.</span></li><li><b>Recall</b><span>Retrieve it with spaced flashcards.</span></li><li><b>Pronounce</b><span>Say it and compare the browser transcript.</span></li><li><b>Use</b><span>Meet it again in dialogue and free practice.</span></li></ol>
+        <div><strong>How the C1 band works</strong><p>The final 500 entries form the course’s C1 vocabulary band. The full 4,000-word core is a strong base, while complete C1 ability still grows through long-form listening, writing, feedback, and regular conversation.</p></div>
       </aside>
     </section>
 
     <section class="page" id="page-words" aria-labelledby="words-title">
       <div class="content-heading">
-        <div><span class="eyebrow">THE CONVERSATIONAL CORE</span><h1 id="words-title">All 1,000 words, in context.</h1><p>Search, filter, listen, and open any entry for its sentence and Belgian usage note.</p></div>
-        <div class="word-total"><strong>1,000</strong><span>unique entries</span></div>
+        <div><span class="eyebrow">THE CONVERSATIONAL CORE</span><h1 id="words-title">All 4,000 words, in context.</h1><p>Search, filter, listen, and open any entry for its sentence and Belgian usage note.</p></div>
+        <div class="word-total"><strong>4,000</strong><span>unique entries</span></div>
       </div>
       <div class="filter-bar">
         <label class="search-box"><span aria-hidden="true">⌕</span><input id="word-search" type="search" placeholder="Search Dutch or English…" autocomplete="off"></label>
         <label><span class="sr-only">Level</span><select id="word-level"><option value="all">All levels</option><option>A0</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></label>
         <label><span class="sr-only">Category</span><select id="word-category"><option value="all">All categories</option></select></label>
       </div>
-      <div class="word-results-line"><span id="word-result-count">1,000 results</span><button id="word-random" class="quiet-button">Surprise me</button></div>
+      <div class="word-results-line"><span id="word-result-count">4,000 results</span><button id="word-random" class="quiet-button">Surprise me</button></div>
       <div class="word-list" id="word-list"></div>
       <div class="pagination" id="word-pagination"></div>
     </section>
@@ -128,7 +124,7 @@
     <section class="page" id="page-cards" aria-labelledby="cards-title">
       <div class="practice-layout">
         <div class="practice-main">
-          <div class="practice-heading"><div><span class="eyebrow">SPACED REVIEW</span><h1 id="cards-title">Build recall, one card at a time.</h1></div><label>Deck<select id="card-level"><option value="adaptive">Adaptive mix</option><option>A0</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option value="belgian">Belgian Dutch</option></select></label></div>
+          <div class="practice-heading"><div><span class="eyebrow">ANKI-STYLE SPACED REVIEW</span><h1 id="cards-title">See each word when memory needs it.</h1></div><label>Deck<select id="card-level"><option value="adaptive">Adaptive mix</option><option>A0</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option value="belgian">Belgian Dutch</option></select></label></div>
           <div class="session-progress"><div><i id="card-session-bar"></i></div><span id="card-session-count">0 / 10 today</span></div>
           <div class="flashcard-scene" id="flashcard-scene" role="button" tabindex="0" aria-label="Flip flashcard">
             <article class="flashcard" id="flashcard">
@@ -148,12 +144,12 @@
             </article>
           </div>
           <div class="rating-row" id="rating-row" aria-label="Rate your recall">
-            <button data-quality="0" class="rating again"><b>Again</b><span>&lt; 1 min</span></button>
-            <button data-quality="1" class="rating hard"><b>Hard</b><span>short</span></button>
-            <button data-quality="2" class="rating good"><b>Good</b><span>normal</span></button>
-            <button data-quality="3" class="rating easy"><b>Easy</b><span>long</span></button>
+            <button data-quality="0" class="rating again"><b>Again</b><span id="interval-again">1 min</span></button>
+            <button data-quality="1" class="rating hard"><b>Hard</b><span id="interval-hard">10 min</span></button>
+            <button data-quality="2" class="rating good"><b>Good</b><span id="interval-good">1 hour</span></button>
+            <button data-quality="3" class="rating easy"><b>Easy</b><span id="interval-easy">4 days</span></button>
           </div>
-          <p class="rating-help">Reveal the answer, then rate honestly. Your rating changes the next interval and trains the local study model.</p>
+          <p class="rating-help">The times show exactly when the card returns. Every answer updates its Anki-style interval and trains the local study model.</p>
         </div>
         <aside class="practice-sidebar">
           <span class="eyebrow">WHY THIS CARD?</span><p id="card-reason">Starting with a high-value word to learn what you know.</p>
@@ -206,6 +202,50 @@
       </div>
     </section>
 
+    <section class="page" id="page-video" aria-labelledby="video-title">
+      <div class="content-heading video-heading">
+        <div><span class="eyebrow">YOUTUBE SENTENCE LAB</span><h1 id="video-title">Turn a Flemish video into a lesson.</h1><p>Paste a public YouTube link. Vlot Vlaams finds the available transcript, separates it into sentences, and shows the vocabulary, level, grammar clue, and sound focus in every line.</p></div>
+      </div>
+      <article class="video-source-card">
+        <label for="youtube-url">YouTube link</label>
+        <div class="video-url-row"><input id="youtube-url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off"><button class="primary-button" id="youtube-load">Build my lesson <span>→</span></button></div>
+        <p class="source-note">Automatic extraction works when a public transcript is available. If YouTube does not expose one, paste the transcript below—the sentence analysis still works fully.</p>
+        <details class="manual-transcript">
+          <summary>Paste a transcript instead</summary>
+          <textarea id="video-transcript-manual" rows="6" placeholder="Paste Dutch or Flemish captions here. One sentence per line is best, but ordinary paragraphs also work."></textarea>
+          <button class="secondary-button" id="video-analyse-manual">Analyse pasted transcript</button>
+        </details>
+      </article>
+      <div class="video-status" id="video-status" role="status" aria-live="polite"><span>▶</span><p><b>Ready for a video</b><small>Use a video with Dutch or Flemish speech and captions for the best result.</small></p></div>
+      <div class="video-workspace" id="video-workspace" hidden>
+        <div class="video-top-grid">
+          <div class="video-player-wrap"><iframe id="youtube-player" title="YouTube lesson video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+          <aside class="video-overview">
+            <span class="eyebrow">LESSON OVERVIEW</span><h2 id="video-lesson-title">Your video</h2>
+            <dl><div><dt>Sentences</dt><dd id="video-sentence-count">0</dd></div><div><dt>Course words found</dt><dd id="video-known-count">0</dd></div><div><dt>Estimated band</dt><dd id="video-level">—</dd></div></dl>
+            <label class="search-box video-search"><span aria-hidden="true">⌕</span><input id="video-sentence-search" type="search" placeholder="Find a sentence or word…"></label>
+          </aside>
+        </div>
+        <div class="sentence-list-heading"><div><span class="eyebrow">SENTENCE BY SENTENCE</span><h2>What they said—and what to learn.</h2></div><span id="video-visible-count"></span></div>
+        <div class="video-sentence-list" id="video-sentence-list"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-quiz" aria-labelledby="quiz-title">
+      <div class="content-heading quiz-heading"><div><span class="eyebrow">QUICK RETRIEVAL</span><h1 id="quiz-title">Test what comes back without help.</h1><p>Ten focused questions sampled from your current level. Wrong answers become useful study signals instead of dead ends.</p></div></div>
+      <div class="quiz-mode-row" role="group" aria-label="Quiz direction"><button class="quiz-mode active" data-quiz-mode="nl-en">Dutch → English</button><button class="quiz-mode" data-quiz-mode="en-nl">English → Dutch</button><button class="quiet-button" id="quiz-restart">New round</button></div>
+      <article class="quiz-card">
+        <div class="quiz-progress-line"><span id="quiz-progress-label">Question 1 of 10</span><strong id="quiz-score-label">0 correct</strong></div>
+        <div class="quiz-progress"><i id="quiz-progress-bar"></i></div>
+        <span class="level-badge" id="quiz-level">A0</span>
+        <p class="quiz-prompt" id="quiz-prompt-label">What does this mean?</p>
+        <div class="quiz-question-row"><h2 id="quiz-question">goeiedag</h2><button class="audio-button" id="quiz-audio" aria-label="Hear quiz word">)))</button></div>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
+        <button class="primary-button quiz-next" id="quiz-next" disabled>Next question <span>→</span></button>
+      </article>
+    </section>
+
     <section class="page" id="page-lab" aria-labelledby="lab-title">
       <div class="lab-hero">
         <div><span class="eyebrow light">PRIVATE · ON-DEVICE · EXPLAINABLE</span><h1 id="lab-title">AI Study Lab <span>✦</span></h1><p>A small neural model studies your recall, speed, lapses, review timing, and speaking results. It stays in this browser and tells you why it recommends something.</p></div>
@@ -240,20 +280,22 @@
 
   <footer>
     <div><strong>Vlot Vlaams</strong><span>Made for learning Belgian Dutch with clarity.</span></div>
-    <p>Vocabulary selection combines a conversational Dutch subtitle frequency list with 50 curated Belgian-Dutch essentials. Meanings and IPA are enriched from Wiktionary data; bilingual examples come from Tatoeba where available. <a href="README.md">Methodology & credits</a>.</p>
+    <p>The 4,000-word selection combines conversational Dutch subtitle frequency data with a curated Belgian-Dutch layer. Meanings and IPA are enriched from Wiktionary data; bilingual examples come from Tatoeba where available. <a href="README.md">Methodology & credits</a>.</p>
   </footer>
 
   <nav class="mobile-nav" aria-label="Mobile navigation">
     <button class="mobile-nav-item active" data-page="home"><span>⌂</span>Home</button>
-    <button class="mobile-nav-item" data-page="path"><span>↗</span>Path</button>
+    <button class="mobile-nav-item" data-page="words"><span>Aa</span>Words</button>
     <button class="mobile-nav-item" data-page="cards"><span>◇</span>Cards</button>
     <button class="mobile-nav-item" data-page="speak"><span>)))</span>Speak</button>
+    <button class="mobile-nav-item" data-page="video"><span>▶</span>Video</button>
+    <button class="mobile-nav-item" data-page="quiz"><span>✓</span>Quiz</button>
     <button class="mobile-nav-item" data-page="lab"><span>✦</span>AI Lab</button>
   </nav>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="data/words.js?v=1"></script>
-  <script src="ml-engine.js?v=1"></script>
-  <script src="app.js?v=1"></script>
+  <script src="data/words.js?v=2"></script>
+  <script src="ml-engine.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

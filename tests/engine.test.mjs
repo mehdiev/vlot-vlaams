@@ -31,3 +31,10 @@ test('dashboard and recommendation expose explainable results',()=>{
   const dashboard=engine.dashboard([word,other]);
   assert.equal(typeof dashboard.signals,'number');
 });
+
+test('Anki-style learning steps begin at 1 minute, 10 minutes, 1 hour, and 4 days',()=>{
+  const engine=new Engine();
+  const freshWord={...word,id:'fresh-anki-card'};
+  const intervals=engine.intervalPreviews(freshWord);
+  assert.deepEqual([...intervals],[60000,600000,3600000,345600000]);
+});

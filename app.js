@@ -37,6 +37,11 @@
   let repeatWord = null;
   let coachWord = null;
   let selectedDialogue = 0;
+  let videoSentences = [];
+  let videoId = '';
+  let videoTitle = 'Your video';
+  let videoWordLookup = null;
+  const quiz = {mode:'nl-en',questions:[],index:0,score:0,answered:false};
   let voices = [];
   const session = {reviewed:0, remembered:0, xp:0, target:10};
 
@@ -72,10 +77,10 @@
     if (updateHash) history.replaceState(null,'',`#${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
     if (name==='home') renderHome();
-    if (name==='path') renderPath();
     if (name==='words') renderWords();
     if (name==='cards') showNextCard();
     if (name==='speak') renderSpeak();
+    if (name==='quiz') renderQuiz();
     if (name==='lab') renderLab();
   }
 
@@ -101,28 +106,6 @@
     $('#home-mastered').textContent=data.mastered;
     $('#home-pronunciation').textContent=data.speechAverage===null?'—':`${Math.round(data.speechAverage)}%`;
     $('#home-level').textContent=currentLevel();
-  }
-
-  function renderPath(){
-    const data=dashboard();
-    const overall=Math.round(data.mastered/WORDS.length*100);
-    $('#path-overall').textContent=`${overall}%`;
-    $('#path-overall-bar').style.width=`${overall}%`;
-    $('#level-stack').innerHTML=LEVELS.map(level=>{
-      const levelWords=WORDS.filter(word=>word.level===level.code);
-      const unitSize=50;
-      const units=Math.ceil(levelWords.length/unitSize);
-      const mastered=levelWords.filter(word=>{const record=engine.recordFor(word);return record.attempts>=2&&engine.predict(word)>=.78;}).length;
-      const percent=Math.round(mastered/levelWords.length*100);
-      const chips=Array.from({length:units},(_,index)=>{
-        const subset=levelWords.slice(index*unitSize,(index+1)*unitSize);
-        const attempts=subset.reduce((sum,word)=>sum+engine.recordFor(word).attempts,0);
-        const strong=subset.filter(word=>engine.recordFor(word).attempts>=2&&engine.predict(word)>=.78).length;
-        const state=strong>=Math.ceil(subset.length*.6)?'done':attempts?'active':'';
-        return `<span class="unit-chip ${state}" title="Unit ${index+1}: ${strong}/${subset.length} strong">${index+1}</span>`;
-      }).join('');
-      return `<article class="level-card"><div class="level-code">${level.code}</div><div class="level-copy"><h2>${level.title}</h2><p>${level.description}<br><b>${level.goal}</b></p></div><div class="unit-track">${chips}</div><div class="level-percent"><strong>${percent}%</strong><span>strong</span></div></article>`;
-    }).join('');
   }
 
   function wordFilters(){
@@ -171,6 +154,18 @@
     if(value==='belgian')return WORDS.filter(word=>word.variant==='Belgian Dutch');
     return WORDS.filter(word=>word.level===value);
   }
+  function formatInterval(ms){
+    if(ms<60000)return '< 1 min';
+    if(ms<3600000)return `${Math.max(1,Math.round(ms/60000))} min`;
+    if(ms<86400000){const hours=Math.max(1,Math.round(ms/3600000));return `${hours} hour${hours===1?'':'s'}`;}
+    if(ms<30*86400000){const days=Math.max(1,Math.round(ms/86400000));return `${days} day${days===1?'':'s'}`;}
+    const months=Math.max(1,Math.round(ms/(30*86400000)));return `${months} month${months===1?'':'s'}`;
+  }
+  function renderCardIntervals(){
+    if(!currentCard)return;
+    const intervals=engine.intervalPreviews(currentCard);
+    ['again','hard','good','easy'].forEach((name,index)=>{$(`#interval-${name}`).textContent=formatInterval(intervals[index]);});
+  }
   function showNextCard(){
     if(currentPage!=='cards')return;
     const pool=selectedCardPool();
@@ -187,6 +182,7 @@
     $('#card-translation').textContent=currentCard.translation;
     $('#card-note').textContent=currentCard.note?(currentCard.standard?`${currentCard.note} Neutral alternative: ${currentCard.standard}.`:currentCard.note):'';
     $('#card-reason').textContent=choice?.reason||'A fresh card from your selected deck.';
+    renderCardIntervals();
     $$('#rating-row button').forEach(button=>button.disabled=true);
     renderSession();
   }
@@ -312,6 +308,161 @@
     const next=()=>{if(index>=lines.length)return;speak(lines[index++][1],{rate:.88,onend:()=>setTimeout(next,280)});};next();
   }
 
+  function extractYouTubeId(value){
+    try{
+      const url=new URL(value.trim());
+      const host=url.hostname.replace(/^www\./,'');
+      if(host==='youtu.be')return url.pathname.split('/').filter(Boolean)[0]||'';
+      if(!['youtube.com','m.youtube.com','music.youtube.com'].includes(host))return'';
+      if(url.searchParams.get('v'))return url.searchParams.get('v');
+      const parts=url.pathname.split('/').filter(Boolean);
+      if(['shorts','embed','live'].includes(parts[0]))return parts[1]||'';
+    }catch{}
+    return /^[\w-]{11}$/.test(value.trim())?value.trim():'';
+  }
+  function setVideoStatus(title,detail,state='ready'){
+    const status=$('#video-status');status.dataset.state=state;
+    status.innerHTML=`<span>${state==='loading'?'◌':state==='error'?'!':'▶'}</span><p><b>${escapeHtml(title)}</b><small>${escapeHtml(detail)}</small></p>`;
+  }
+  async function fetchTextWithTimeout(url,timeout=26000){
+    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);
+    try{const response=await fetch(url,{headers:{Accept:'text/plain'},signal:controller.signal});if(!response.ok)throw new Error(`Request failed (${response.status})`);return await response.text();}
+    finally{clearTimeout(timer);}
+  }
+  function readerBody(text){
+    const marker='Markdown Content:';const index=text.indexOf(marker);return index>=0?text.slice(index+marker.length).trim():text.trim();
+  }
+  function parseTimestamp(value){
+    const parts=String(value).trim().split(':').map(Number);if(parts.some(Number.isNaN))return null;
+    if(parts.length===3)return parts[0]*3600+parts[1]*60+parts[2];
+    if(parts.length===2)return parts[0]*60+parts[1];return null;
+  }
+  function cleanCaptionText(value){
+    const area=document.createElement('textarea');area.innerHTML=String(value||'');
+    return area.value.replace(/<[^>]+>/g,' ').replace(/!\[[^\]]*\]\([^)]*\)/g,' ').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/\s+/g,' ').trim();
+  }
+  function parseTimedText(text){
+    const body=readerBody(text);if(!body||body.length<20)return[];
+    if(/<text[\s>]/i.test(body)){
+      const xml=new DOMParser().parseFromString(body,'text/xml');
+      return [...xml.querySelectorAll('text')].map(node=>({text:cleanCaptionText(node.textContent),start:Number(node.getAttribute('start'))||null})).filter(item=>item.text);
+    }
+    const lines=body.split(/\r?\n/);const cues=[];
+    for(let index=0;index<lines.length;index++){
+      if(!lines[index].includes('-->'))continue;
+      const start=parseTimestamp(lines[index].split('-->')[0].replace(',','.'));const content=[];
+      for(index+=1;index<lines.length&&lines[index].trim();index++)content.push(lines[index]);
+      const value=cleanCaptionText(content.join(' '));if(value)cues.push({text:value,start});
+    }
+    return cues;
+  }
+  function extractReaderTranscript(text){
+    const body=readerBody(text);const cues=[];
+    for(const line of body.split(/\r?\n/)){
+      const match=line.match(/(?:^|\[)(\d{1,2}:\d{2}(?::\d{2})?)(?:\]|\s|-)+(.{2,})$/);
+      if(match){const value=cleanCaptionText(match[2]);if(value)cues.push({text:value,start:parseTimestamp(match[1])});}
+    }
+    if(cues.length>=2)return cues;
+    const labelled=body.match(/(?:Transcript|Ondertiteling|Lyrics):\s*([^#]{100,})/i);
+    return labelled?[{text:cleanCaptionText(labelled[1]),start:null}]:[];
+  }
+  function splitTranscript(items){
+    const results=[];const segmenter='Segmenter'in Intl?new Intl.Segmenter('nl',{granularity:'sentence'}):null;
+    for(const item of items){
+      const source=cleanCaptionText(item.text).replace(/\[(music|muziek|applause|gelach)[^\]]*\]/gi,' ').trim();if(!source)continue;
+      const pieces=segmenter?[...segmenter.segment(source)].map(part=>part.segment):source.split(/(?<=[.!?])\s+|\n+/);
+      pieces.forEach((piece,pieceIndex)=>{const text=cleanCaptionText(piece);const count=normaliseSpeech(text).split(' ').filter(Boolean).length;if(count>=2&&count<=34&&text.length<=280)results.push({text,start:pieceIndex===0?item.start:null});});
+    }
+    const unique=[];const seen=new Set();
+    for(const item of results){const key=normaliseSpeech(item.text);if(!key||seen.has(key))continue;seen.add(key);unique.push(item);if(unique.length>=240)break;}
+    return unique;
+  }
+  function ensureVideoWordLookup(){
+    if(videoWordLookup)return videoWordLookup;videoWordLookup=new Map();
+    WORDS.forEach(word=>{[word.word,...(word.forms||[])].forEach(form=>{const key=normaliseSpeech(form);if(key&&!key.includes(' ')&&!videoWordLookup.has(key))videoWordLookup.set(key,word);});});
+    return videoWordLookup;
+  }
+  function sentenceLesson(sentence){
+    const lookup=ensureVideoWordLookup();const words=[];const seen=new Set();
+    normaliseSpeech(sentence.text).split(' ').forEach(token=>{const word=lookup.get(token);if(word&&!seen.has(word.id)){seen.add(word.id);words.push(word);}});
+    words.sort((a,b)=>a.rank-b.rank);const levels=['A0','A1','A2','B1','B2','C1'];
+    const levelValues=words.map(word=>levels.indexOf(word.level)).filter(index=>index>=0).sort((a,b)=>a-b);
+    const level=levelValues.length?levels[levelValues[Math.min(levelValues.length-1,Math.floor(levelValues.length*.72))]]:'—';
+    const value=normaliseSpeech(sentence.text);let grammar='Notice the subject and the position of the main verb.';
+    if(/[?]$/.test(sentence.text))grammar='Question pattern: listen for the verb before the subject or a question word at the start.';
+    else if(/\b(omdat|terwijl|hoewel|als|wanneer)\b/.test(value))grammar='Subordinate clause: the connector usually sends the conjugated verb toward the end.';
+    else if(/\b(want|maar|dus|en)\b/.test(value))grammar='Connector pattern: see how two ideas are joined without losing the sentence rhythm.';
+    else if(/\b(gij|ge|uw)\b/.test(value))grammar='Belgian pronoun pattern: gij/ge and uw are natural in informal Flemish conversation.';
+    else if(/\ber\b/.test(value))grammar='The small word “er” carries place, existence, or quantity—learn the whole phrase around it.';
+    else if(/\bte\s+[a-z]+/.test(value))grammar='Infinitive pattern: “te + verb” links the action to the verb or expression before it.';
+    const sound=pronunciationTips(sentence.text);
+    return {...sentence,words:words.slice(0,8),level,grammar,sound:sound.tip};
+  }
+  function renderVideoSentences(){
+    const query=normaliseSpeech($('#video-sentence-search').value);const visible=videoSentences.filter(sentence=>!query||normaliseSpeech(`${sentence.text} ${sentence.words.map(word=>`${word.word} ${word.meaning}`).join(' ')}`).includes(query));
+    $('#video-visible-count').textContent=`${visible.length} sentence${visible.length===1?'':'s'}`;
+    $('#video-sentence-list').innerHTML=visible.map(sentence=>{
+      const index=videoSentences.indexOf(sentence);const vocab=sentence.words.length?sentence.words.map(word=>`<span><b>${escapeHtml(word.word)}</b>${escapeHtml(word.meaning)}</span>`).join(''):'<em>No direct match in the 4,000-word deck—use the sentence pattern and sound note.</em>';
+      const time=sentence.start===null?'':`<button class="quiet-button" data-video-jump="${index}">▶ ${Math.floor(sentence.start/60)}:${String(Math.floor(sentence.start%60)).padStart(2,'0')}</button>`;
+      return `<article class="video-sentence"><div class="sentence-number">${String(index+1).padStart(2,'0')}</div><div class="sentence-body"><div class="sentence-top"><span class="level-badge">${sentence.level}</span>${time}</div><h3>${escapeHtml(sentence.text)}</h3><div class="sentence-learning"><div><b>Course vocabulary</b><div class="sentence-vocab">${vocab}</div></div><div><b>Pattern to notice</b><p>${escapeHtml(sentence.grammar)}</p></div><div><b>Sound focus</b><p>${escapeHtml(sentence.sound)}</p></div></div><div class="sentence-actions"><button class="secondary-button" data-video-speak="${index}">))) Hear sentence</button><button class="primary-button" data-video-practice="${index}">Practice speaking</button></div></div></article>`;
+    }).join('')||'<div class="truth-note"><span class="truth-mark">i</span><div><strong>No matching sentences</strong><p>Clear the sentence search to see the full lesson.</p></div></div>';
+  }
+  function renderVideoLesson(sentences){
+    videoSentences=sentences.map(sentenceLesson);const uniqueWords=new Set(videoSentences.flatMap(sentence=>sentence.words.map(word=>word.id)));const levels=['A0','A1','A2','B1','B2','C1'];
+    const values=videoSentences.map(sentence=>levels.indexOf(sentence.level)).filter(index=>index>=0).sort((a,b)=>a-b);const level=values.length?levels[values[Math.min(values.length-1,Math.floor(values.length*.72))]]:'—';
+    $('#video-workspace').hidden=false;$('#video-lesson-title').textContent=videoTitle;$('#video-sentence-count').textContent=videoSentences.length;$('#video-known-count').textContent=uniqueWords.size;$('#video-level').textContent=level;
+    const frame=$('.video-player-wrap');frame.hidden=!videoId;if(videoId)$('#youtube-player').src=`https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&rel=0&cc_load_policy=1`;
+    $('#video-sentence-search').value='';renderVideoSentences();setVideoStatus('Lesson ready',`${videoSentences.length} sentences analysed against the 4,000-word course.`,'ready');
+  }
+  async function loadYouTubeLesson(){
+    const input=$('#youtube-url').value;const id=extractYouTubeId(input);
+    if(!id){setVideoStatus('That link is not recognised','Paste a full YouTube, YouTube Shorts, or youtu.be link.','error');return;}
+    videoId=id;videoTitle='YouTube sentence lesson';setVideoStatus('Reading public captions…','This can take a few seconds.','loading');$('#youtube-load').disabled=true;
+    try{
+      const watch=`https://r.jina.ai/http://www.youtube.com/watch?v=${id}`;
+      const timedBase=`https://r.jina.ai/http://www.youtube.com/api/timedtext?lang=nl&v=${id}&fmt=vtt`;
+      const results=await Promise.allSettled([fetchTextWithTimeout(watch),fetchTextWithTimeout(timedBase),fetchTextWithTimeout(`${timedBase}&kind=asr`)]);
+      const reader=results[0].status==='fulfilled'?results[0].value:'';const title=reader.match(/^Title:\s*(.+)$/m)?.[1]?.trim();if(title)videoTitle=title;
+      let raw=[];for(const result of results.slice(1)){if(result.status==='fulfilled'){raw=parseTimedText(result.value);if(raw.length)break;}}
+      if(!raw.length&&reader)raw=extractReaderTranscript(reader);
+      const sentences=splitTranscript(raw);if(!sentences.length)throw new Error('No public Dutch transcript was exposed.');
+      renderVideoLesson(sentences);
+    }catch(error){setVideoStatus('The video opened, but its transcript was unavailable','Open “Paste a transcript instead”, copy the YouTube transcript, and the full sentence analysis will still run.','error');$('#video-workspace').hidden=false;$('.video-player-wrap').hidden=false;$('#youtube-player').src=`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&rel=0&cc_load_policy=1`;$('.manual-transcript').open=true;}
+    finally{$('#youtube-load').disabled=false;}
+  }
+  function analyseManualTranscript(){
+    const text=$('#video-transcript-manual').value.trim();if(!text){toast('Paste a transcript first.');return;}
+    const possibleId=extractYouTubeId($('#youtube-url').value);if(possibleId)videoId=possibleId;videoTitle=videoId?'Pasted transcript lesson':'Your transcript lesson';
+    const sentences=splitTranscript(text.split(/\n+/).map(line=>({text:line,start:null})));if(!sentences.length){setVideoStatus('No usable sentences found','Try ordinary Dutch text with one or more complete sentences.','error');return;}renderVideoLesson(sentences);
+  }
+  function jumpVideo(index){
+    const sentence=videoSentences[index];if(!sentence||sentence.start===null)return;const frame=$('#youtube-player');frame.contentWindow?.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[sentence.start,true]}),'*');frame.contentWindow?.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
+  }
+  function practiceVideoSentence(index){
+    const sentence=videoSentences[index];if(!sentence)return;coachWord={id:`video-${videoId||'manual'}-${index}`,word:sentence.words[0]?.word||sentence.text.split(/\s+/)[0],example:sentence.text,translation:`Sentence ${index+1} from your video`,level:sentence.level==='—'?'A2':sentence.level};
+    setPage('speak');const coachTab=$('[data-speak-tab="coach"]');$$('.subnav-item').forEach(item=>item.classList.toggle('active',item===coachTab));$$('.speak-panel').forEach(panel=>panel.classList.toggle('active',panel.id==='speak-coach'));$('#coach-target').textContent=coachWord.example;$('#coach-translation').textContent=coachWord.translation;resetSpeechFeedback();
+  }
+
+  function shuffled(values){return [...values].sort(()=>Math.random()-.5);}
+  function startQuiz(){
+    const pool=adaptivePool();quiz.questions=shuffled(pool).slice(0,10).map(word=>{
+      const alternatives=shuffled(WORDS.filter(item=>item.id!==word.id&&item.level===word.level)).slice(0,3);
+      return {word,alternatives:shuffled([word,...alternatives])};
+    });quiz.index=0;quiz.score=0;quiz.answered=false;renderQuiz();
+  }
+  function renderQuiz(){
+    if(!quiz.questions.length){startQuiz();return;}const current=quiz.questions[quiz.index];
+    if(!current){$('#quiz-progress-label').textContent='Round complete';$('#quiz-score-label').textContent=`${quiz.score} / 10 correct`;$('#quiz-progress-bar').style.width='100%';$('#quiz-level').textContent='DONE';$('#quiz-prompt-label').textContent='Nice work—retrieval practice is what makes vocabulary usable.';$('#quiz-question').textContent=quiz.score>=8?'Sterk gedaan!':quiz.score>=5?'Goed bezig.':'Keep building the pattern.';$('#quiz-options').innerHTML='';$('#quiz-feedback').innerHTML=`<strong>${quiz.score*10}%</strong><span>Start a new round or review your due flashcards next.</span>`;$('#quiz-next').disabled=true;return;}
+    const dutchFirst=quiz.mode==='nl-en';$('#quiz-progress-label').textContent=`Question ${quiz.index+1} of 10`;$('#quiz-score-label').textContent=`${quiz.score} correct`;$('#quiz-progress-bar').style.width=`${quiz.index*10}%`;$('#quiz-level').textContent=current.word.level;$('#quiz-prompt-label').textContent=dutchFirst?'What does this mean?':'Which Dutch word matches?';$('#quiz-question').textContent=dutchFirst?current.word.word:current.word.meaning;$('#quiz-audio').hidden=!dutchFirst;$('#quiz-options').innerHTML=current.alternatives.map(option=>`<button data-quiz-answer="${option.id}">${escapeHtml(dutchFirst?option.meaning:option.word)}</button>`).join('');$('#quiz-feedback').innerHTML='';$('#quiz-next').disabled=true;quiz.answered=false;
+  }
+  function answerQuiz(id){
+    if(quiz.answered)return;const current=quiz.questions[quiz.index];const correct=id===current.word.id;quiz.answered=true;if(correct)quiz.score+=1;
+    $$('#quiz-options button').forEach(button=>{button.disabled=true;if(button.dataset.quizAnswer===current.word.id)button.classList.add('correct');else if(button.dataset.quizAnswer===id)button.classList.add('wrong');});
+    $('#quiz-feedback').innerHTML=correct?`<strong>Correct</strong><span>${escapeHtml(current.word.example)}</span>`:`<strong>Not yet</strong><span>${escapeHtml(current.word.word)} means ${escapeHtml(current.word.meaning)}. ${escapeHtml(current.word.example)}</span>`;$('#quiz-next').disabled=false;
+    engine.record(current.word,correct?2:0,4200);touchStreak();resetDailyIfNeeded();stats.dailyCount+=1;stats.totalRatings+=1;stats.xp+=correct?8:2;saveStats();renderHome();
+  }
+  function nextQuizQuestion(){if(!quiz.answered)return;quiz.index+=1;renderQuiz();}
+
   function renderLab(){
     const data=dashboard();
     $('#lab-recall').textContent=data.recall===null?'—':`${Math.round(data.recall*100)}%`;
@@ -356,6 +507,11 @@
       const tab=event.target.closest('[data-speak-tab]');if(tab){$$('.subnav-item').forEach(item=>item.classList.toggle('active',item===tab));$$('.speak-panel').forEach(panel=>panel.classList.toggle('active',panel.id===`speak-${tab.dataset.speakTab}`));return;}
       const dialogueButton=event.target.closest('[data-dialogue]');if(dialogueButton){selectedDialogue=Number(dialogueButton.dataset.dialogue);renderDialogues();return;}
       const dialogueLine=event.target.closest('[data-dialogue-line]');if(dialogueLine){playDialogueLine(Number(dialogueLine.dataset.dialogueLine));return;}
+      const videoSpeak=event.target.closest('[data-video-speak]');if(videoSpeak){speak(videoSentences[Number(videoSpeak.dataset.videoSpeak)]?.text||'');return;}
+      const videoJump=event.target.closest('[data-video-jump]');if(videoJump){jumpVideo(Number(videoJump.dataset.videoJump));return;}
+      const videoPractice=event.target.closest('[data-video-practice]');if(videoPractice){practiceVideoSentence(Number(videoPractice.dataset.videoPractice));return;}
+      const quizAnswer=event.target.closest('[data-quiz-answer]');if(quizAnswer){answerQuiz(quizAnswer.dataset.quizAnswer);return;}
+      const quizMode=event.target.closest('[data-quiz-mode]');if(quizMode){quiz.mode=quizMode.dataset.quizMode;$$('.quiz-mode').forEach(button=>button.classList.toggle('active',button===quizMode));startQuiz();return;}
     });
     $$('#word-search,#word-level,#word-category').forEach(input=>input.addEventListener(input.tagName==='INPUT'?'input':'change',()=>{wordsPage=1;renderWords();}));
     $('#word-random').addEventListener('click',()=>{const word=WORDS[Math.floor(Math.random()*WORDS.length)];$('#word-search').value=word.word;wordsPage=1;renderWords();setTimeout(()=>$('.word-row')?.classList.add('open'),0);});
@@ -369,13 +525,15 @@
     $('#repeat-play').addEventListener('click',()=>speak(repeatWord.example,{onstart:()=>$('.wave').classList.add('playing'),onend:()=>$('.wave').classList.remove('playing')}));
     $('#coach-hear').addEventListener('click',()=>speak(coachWord.example));$('#coach-next').addEventListener('click',nextCoachWord);$('#coach-record').addEventListener('click',startRecognition);
     $('#dialogue-play').addEventListener('click',playDialogue);
+    $('#youtube-load').addEventListener('click',loadYouTubeLesson);$('#youtube-url').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();loadYouTubeLesson();}});$('#video-analyse-manual').addEventListener('click',analyseManualTranscript);$('#video-sentence-search').addEventListener('input',renderVideoSentences);
+    $('#quiz-audio').addEventListener('click',()=>{const current=quiz.questions[quiz.index];if(current)speak(current.word.word);});$('#quiz-next').addEventListener('click',nextQuizQuestion);$('#quiz-restart').addEventListener('click',startQuiz);
     $('#lab-hear').addEventListener('click',()=>currentLabChoice&&speak(currentLabChoice.word.word));$('#lab-reveal').addEventListener('click',revealLab);
     $('#clear-learning-data').addEventListener('click',()=>{if(confirm('Clear all local progress, streaks, pronunciation scores, and adaptive model data for Vlot Vlaams?')){engine.clear();stats={streak:0,lastDate:'',dailyDate:'',dailyCount:0,totalRatings:0,xp:0,speechScores:[]};saveStats();renderHome();renderLab();toast('Learning data cleared.');}});
   }
 
   function init(){
     if(!WORDS.length){document.body.innerHTML='<p style="padding:2rem">The vocabulary data could not be loaded.</p>';return;}
-    resetDailyIfNeeded();bindEvents();renderWords();renderHome();renderPath();renderDialogues();renderSession();
+    resetDailyIfNeeded();bindEvents();renderWords();renderHome();renderDialogues();renderSession();startQuiz();
     if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
     const requested=location.hash.replace('#','');setPage(requested||'home',false);
     if('serviceWorker'in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});

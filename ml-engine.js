@@ -5,6 +5,8 @@
   const INPUTS = 7;
   const HIDDEN_1 = 9;
   const HIDDEN_2 = 5;
+  const MINUTE = 60000;
+  const HOUR = 60 * MINUTE;
   const DAY = 86400000;
   const clamp = (value, min=0, max=1) => Math.max(min, Math.min(max, value));
   const sigmoid = value => 1 / (1 + Math.exp(-Math.max(-20, Math.min(20, value))));
@@ -58,10 +60,31 @@
     key(word){ return word.id || word.word; }
 
     recordFor(word){
-      return this.state.words[this.key(word)] || {
+      return {
         attempts:0, scoreSum:0, correct:0, lapses:0, avgMs:0, lastSeen:0,
-        nextReview:0, intervalMs:0, pronunciationAttempts:0, pronunciationAvg:0
+        nextReview:0, intervalMs:0, easeFactor:2.5, repetitions:0,
+        pronunciationAttempts:0, pronunciationAvg:0,
+        ...(this.state.words[this.key(word)] || {})
       };
+    }
+
+    intervalFor(record, quality){
+      const oldInterval = record.intervalMs || 0;
+      const ease = record.easeFactor || 2.5;
+      if (quality === 0) return MINUTE;
+      if (quality === 1) return oldInterval < DAY ? Math.max(10 * MINUTE, oldInterval * 1.2) : oldInterval * 1.2;
+      if (quality === 2) {
+        if (oldInterval < HOUR) return HOUR;
+        if (oldInterval < DAY) return DAY;
+        return oldInterval * ease;
+      }
+      if (oldInterval < DAY) return 4 * DAY;
+      return oldInterval * ease * 1.3;
+    }
+
+    intervalPreviews(word){
+      const record = this.recordFor(word);
+      return [0,1,2,3].map(quality => Math.min(365 * DAY, Math.max(MINUTE, this.intervalFor(record, quality))));
     }
 
     features(word, record=this.recordFor(word), now=Date.now()){
@@ -134,9 +157,12 @@
       const measured = clamp(responseMs || 4000, 500, 30000);
       record.avgMs = record.avgMs ? record.avgMs * .72 + measured * .28 : measured;
       record.lastSeen = now;
-      const oldInterval = before.intervalMs || 0;
-      const intervals = [45000, Math.max(10 * 60000, oldInterval * .55), Math.max(12 * 3600000, oldInterval * 1.75), Math.max(3 * DAY, oldInterval * 2.5)];
-      record.intervalMs = intervals[quality];
+      record.easeFactor = before.easeFactor || 2.5;
+      if (quality === 0) record.easeFactor = Math.max(1.3, record.easeFactor - .2);
+      if (quality === 1) record.easeFactor = Math.max(1.3, record.easeFactor - .15);
+      if (quality === 3) record.easeFactor = Math.min(3, record.easeFactor + .15);
+      record.repetitions = quality >= 2 ? (before.repetitions || 0) + 1 : 0;
+      record.intervalMs = Math.min(365 * DAY, Math.max(MINUTE, this.intervalFor(before, quality)));
       record.nextReview = now + record.intervalMs;
       this.state.words[key] = record;
       this.state.signals += 1;
@@ -168,8 +194,10 @@
 
     recommendation(words, excludeKey=''){
       const now = Date.now();
-      const ranked = words
-        .filter(word => this.key(word) !== excludeKey)
+      const available = words.filter(word => this.key(word) !== excludeKey);
+      const dueOrNew = available.filter(word => { const record=this.recordFor(word); return !record.attempts || record.nextReview <= now; });
+      const candidates = dueOrNew.length ? dueOrNew : available;
+      const ranked = candidates
         .map(word => {
           const record = this.recordFor(word);
           const recall = this.predict(word, now);

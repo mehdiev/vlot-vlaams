@@ -102,7 +102,9 @@ function getLemma(entry) {
 }
 
 function bestGloss(entry) {
-  const senses = (entry?.senses || []).filter(sense => sense.glosses?.length && !sense.form_of?.length && !sense.alt_of?.length);
+  const available = (entry?.senses || []).filter(sense => sense.glosses?.length && !sense.alt_of?.length);
+  const independent = available.filter(sense => !sense.form_of?.length);
+  const senses = independent.length ? independent : available;
   const preferred = senses.find(sense => !(sense.tags || []).some(tag => ['obsolete','archaic','historical'].includes(tag))) || senses[0];
   if (!preferred) return '';
   return preferred.glosses
@@ -159,7 +161,7 @@ function chooseLemmaEntry(entries, preferredPos) {
 }
 
 function categoryFor(pos, rank) {
-  if (rank <= 120) return 'Essentials';
+  if (rank <= 350) return 'Essentials';
   if (['verb'].includes(pos)) return 'Actions';
   if (['adj','adv'].includes(pos)) return 'Descriptions';
   if (['pron','article','det','conj','prep'].includes(pos)) return 'Building sentences';
@@ -168,11 +170,11 @@ function categoryFor(pos, rank) {
 }
 
 function levelFor(rank) {
-  if (rank <= 100) return 'A0';
-  if (rank <= 300) return 'A1';
-  if (rank <= 500) return 'A2';
-  if (rank <= 700) return 'B1';
-  if (rank <= 850) return 'B2';
+  if (rank <= 250) return 'A0';
+  if (rank <= 1000) return 'A1';
+  if (rank <= 2000) return 'A2';
+  if (rank <= 2800) return 'B1';
+  if (rank <= 3500) return 'B2';
   return 'C1';
 }
 
@@ -249,7 +251,7 @@ const frequencyRows = fs.readFileSync(FREQUENCY_PATH, 'utf8')
   .filter(row => row.surface && /^[\p{L}][\p{L}'’-]+$/u.test(row.surface) && !blockedWords.has(row.surface));
 
 const frequencySet = new Set(frequencyRows.map(row => row.surface));
-const firstPassTargets = new Set(frequencyRows.slice(0, 7000).map(row => row.surface));
+const firstPassTargets = new Set(frequencyRows.slice(0, 20000).map(row => row.surface));
 curated.forEach(item => firstPassTargets.add(item.word));
 
 console.log(`Reading dictionary forms for ${firstPassTargets.size} frequent words…`);
@@ -257,7 +259,7 @@ const surfaceEntries = await collectDictionaryEntries(firstPassTargets);
 const surfaceCandidates = [];
 const lemmaTargets = new Set(curated.map(item => item.word));
 
-for (const row of frequencyRows.slice(0, 7000)) {
+for (const row of frequencyRows.slice(0, 20000)) {
   const entry = chooseSurfaceEntry(surfaceEntries.get(row.surface));
   if (!entry || ['name','proper-noun','character','symbol'].includes(entry.pos)) continue;
   const lemma = getLemma(entry);
@@ -273,6 +275,33 @@ const grouped = new Map();
 // A few very common words have several valid dictionary senses. Keep the
 // learner-facing gloss aligned with the concrete sentence used in the course.
 const lexicalOverrides = {
+  zijn: {meaning:'to be; his', pos:'verb'},
+  voor: {meaning:'for; before', pos:'preposition'},
+  zo: {meaning:'so; like this; such', pos:'adverb'},
+  kan: {meaning:'can; to be able to', pos:'verb'},
+  goed: {meaning:'good; well', pos:'adjective'},
+  hoe: {meaning:'how', pos:'adverb'},
+  daar: {meaning:'there; because', pos:'adverb'},
+  meer: {meaning:'more; anymore', pos:'adverb'},
+  al: {meaning:'already; all', pos:'adverb'},
+  laat: {meaning:'late; let', pos:'adjective'},
+  doe: {meaning:'I do; do!', pos:'verb'},
+  nodig: {meaning:'needed; necessary', pos:'adjective'},
+  net: {meaning:'just; neat', pos:'adverb'},
+  hou: {meaning:'I hold; I keep; I love', pos:'verb'},
+  dood: {meaning:'dead; death', pos:'adjective'},
+  huizen: {meaning:'houses; homes', pos:'noun'},
+  waren: {meaning:'were; used to be', pos:'verb'},
+  hele: {meaning:'whole; entire', pos:'adjective'},
+  toe: {meaning:'closed; toward; go ahead', pos:'adverb'},
+  dingen: {meaning:'things', pos:'noun'},
+  'halloën': {word:'hallo', meaning:'hello', pos:'interjection'},
+  goeden: {word:'goede', meaning:'good (before a noun)', pos:'adjective'},
+  goedendag: {meaning:'hello; good day', pos:'interjection'},
+  jongen: {meaning:'boy; young man', pos:'noun'},
+  lang: {meaning:'long; for a long time', pos:'adjective'},
+  gezien: {meaning:'seen; considering', pos:'verb'},
+  zat: {meaning:'sat; drunk; plenty', pos:'adjective'},
   kapot: {meaning:'broken; exhausted', pos:'adjective'}
 };
 
@@ -294,9 +323,10 @@ for (const [lemma, group] of [...grouped].sort((a,b) => a[1].sourceRank - b[1].s
   const lexicalOverride = lexicalOverrides[lemma];
   const meaning = lexicalOverride?.meaning || bestGloss(entry);
   if (!entry || !meaning || meaning.length < 2) continue;
-  const forms = [...new Set([...group.forms, ...getForms(entry, frequencySet)])].filter(Boolean).slice(0, 12);
+  const displayWord = lexicalOverride?.word || lemma;
+  const forms = [...new Set([displayWord, ...group.forms, ...getForms(entry, frequencySet)])].filter(Boolean).slice(0, 12);
   baseWords.push({
-    word:lemma,
+    word:displayWord,
     meaning,
     pos:lexicalOverride?.pos || entry.pos || group.pos || 'word',
     ipa:bestIpa(entry),
@@ -308,15 +338,15 @@ for (const [lemma, group] of [...grouped].sort((a,b) => a[1].sourceRank - b[1].s
     note:'',
     source:'OpenSubtitles frequency + Kaikki/Wiktionary'
   });
-  if (baseWords.length >= 1200) break;
+  if (baseWords.length >= 4500) break;
 }
 
-if (baseWords.length < 950) throw new Error(`Only ${baseWords.length} usable frequency lemmas were found.`);
+if (baseWords.length < 3950) throw new Error(`Only ${baseWords.length} usable frequency lemmas were found.`);
 
 const curatedBySlot = new Map(curated.map(item => [item.slot, item]));
 const words = [];
 let baseIndex = 0;
-for (let rank=1; rank<=1000; rank++) {
+for (let rank=1; rank<=4000; rank++) {
   const special = curatedBySlot.get(rank);
   const raw = special ? {
     ...special,
@@ -348,7 +378,7 @@ const output = `// Generated by scripts/generate-dataset.mjs. Do not edit by han
     frequencySource:'FrequencyWords Dutch 2018 / OpenSubtitles',
     dictionarySource:'Kaikki.org Dutch dictionary / English Wiktionary',
     exampleSource:'Tatoeba English–Dutch parallel corpus plus curated Belgian examples',
-    methodology:'950 high-frequency conversational Dutch lemmas plus 50 Belgian-Dutch essentials, ordered into a learning path.'
+    methodology:'3,950 high-frequency conversational Dutch lemmas plus 50 Belgian-Dutch essentials, ordered from A0 through C1.'
   }, null, 2)};\n`;
 
 fs.mkdirSync(path.dirname(OUTPUT_PATH), {recursive:true});
