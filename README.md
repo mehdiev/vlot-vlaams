@@ -2,6 +2,8 @@
 
 Vlot Vlaams is a free, static Belgian-Dutch learning app built around exactly 1,000 conversational entries. It combines a frequency-ranked Dutch core with a curated Belgian-Dutch layer, authentic bilingual examples, browser speech, adaptive flashcards, streaks, and a private on-device learner model.
 
+**Live app:** [mehdiev.github.io/vlot-vlaams](https://mehdiev.github.io/vlot-vlaams/)
+
 ## What is included
 
 - 1,000 unique entries, each with an English meaning and contextual sentence
