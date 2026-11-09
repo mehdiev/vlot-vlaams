@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f48">
+  <meta name="description" content="Learn Belgian Dutch through 1,000 conversational words, real sentences, adaptive review, flashcards, and browser-based pronunciation feedback.">
+  <title>Vlot Vlaams — Belgian Dutch from A0 to C1</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#home" data-page-link="home" aria-label="Vlot Vlaams home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span><strong>Vlot Vlaams</strong><small>Belgian Dutch, naturally</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <button class="nav-item active" data-page="home">Home</button>
+      <button class="nav-item" data-page="path">Path</button>
+      <button class="nav-item" data-page="words">1,000 words</button>
+      <button class="nav-item" data-page="cards">Cards</button>
+      <button class="nav-item" data-page="speak">Speak</button>
+      <button class="nav-item lab-nav" data-page="lab"><span>✦</span> AI Lab</button>
+    </nav>
+    <div class="header-streak" title="Current learning streak"><span>🔥</span><strong id="header-streak">0</strong><small>days</small></div>
+  </header>
+
+  <main>
+    <section class="page active" id="page-home" aria-labelledby="home-title">
+      <div class="hero-shell">
+        <div class="hero-copy">
+          <span class="eyebrow light">BELGIAN DUTCH · 1,000 CONVERSATIONAL WORDS</span>
+          <h1 id="home-title">From your first <em>goeiedag</em> to confident conversation.</h1>
+          <p>Learn the words people actually use in Flanders—inside real sentences, with Belgian pronunciation, adaptive review, and honest feedback on your speaking.</p>
+          <div class="hero-actions">
+            <button class="primary-button warm" data-page="cards">Start today’s practice <span>→</span></button>
+            <button class="text-button light" data-page="path">See the A0–C1 path</button>
+          </div>
+          <div class="hero-proof">
+            <span><b>1,000</b> useful words</span>
+            <span><b>6</b> learning bands</span>
+            <span><b>0</b> accounts or ads</span>
+          </div>
+        </div>
+        <aside class="today-card" aria-labelledby="today-heading">
+          <div class="today-topline"><span class="eyebrow">TODAY</span><span id="today-date"></span></div>
+          <h2 id="today-heading">Your next small win</h2>
+          <div class="daily-ring" aria-label="Daily practice progress">
+            <svg viewBox="0 0 120 120" role="img">
+              <circle class="ring-track" cx="60" cy="60" r="50"></circle>
+              <circle class="ring-value" id="daily-ring" cx="60" cy="60" r="50"></circle>
+            </svg>
+            <div><strong id="daily-count">0</strong><span>/ 10 cards</span></div>
+          </div>
+          <div class="today-plan">
+            <div><span class="plan-dot review"></span><p><strong id="home-due">0 words</strong><small>ready for review</small></p></div>
+            <div><span class="plan-dot speak"></span><p><strong>1 sentence</strong><small>listen, repeat, compare</small></p></div>
+          </div>
+          <button class="secondary-button full" data-page="cards">Continue practice</button>
+        </aside>
+      </div>
+
+      <div class="stat-strip" aria-label="Learning statistics">
+        <article><span class="stat-icon">◇</span><div><strong id="home-practiced">0</strong><small>words practiced</small></div></article>
+        <article><span class="stat-icon">✓</span><div><strong id="home-mastered">0</strong><small>words getting strong</small></div></article>
+        <article><span class="stat-icon">◌</span><div><strong id="home-pronunciation">—</strong><small>speech score</small></div></article>
+        <article><span class="stat-icon">↗</span><div><strong id="home-level">A0</strong><small>current band</small></div></article>
+      </div>
+
+      <div class="section-heading split-heading">
+        <div><span class="eyebrow">BUILT FOR REAL CONVERSATION</span><h2>One course, four ways to make it stick.</h2></div>
+        <p>Every activity writes to the same private learner model on this device, so practice becomes more personal over time.</p>
+      </div>
+      <div class="feature-grid">
+        <button class="feature-card feature-path" data-page="path">
+          <span class="feature-number">01</span><span class="feature-symbol">↗</span>
+          <h3>A guided path</h3><p>Move through six bands from survival phrases to nuanced conversation.</p><b>Explore the path →</b>
+        </button>
+        <button class="feature-card feature-words" data-page="words">
+          <span class="feature-number">02</span><span class="feature-symbol">Aa</span>
+          <h3>Words in context</h3><p>Meaning, IPA, authentic bilingual examples, and Belgian usage notes.</p><b>Browse all words →</b>
+        </button>
+        <button class="feature-card feature-speak" data-page="speak">
+          <span class="feature-number">03</span><span class="feature-symbol">)))</span>
+          <h3>Listen and speak</h3><p>Hear a Belgian-Dutch voice and compare your transcript with the target.</p><b>Open speech coach →</b>
+        </button>
+        <button class="feature-card feature-lab" data-page="lab">
+          <span class="feature-number">04</span><span class="feature-symbol">✦</span>
+          <h3>Adaptive AI Lab</h3><p>A local model learns your recall, timing, lapses, and pronunciation.</p><b>See your study model →</b>
+        </button>
+      </div>
+
+      <aside class="truth-note">
+        <span class="truth-mark">i</span>
+        <div><strong>An honest note about C1</strong><p>One thousand words alone do not make anyone C1. This app uses A0–C1 as increasingly demanding learning bands for a core conversational vocabulary. Real C1 also needs thousands more words, long-form listening, writing, feedback, and regular conversation.</p></div>
+      </aside>
+    </section>
+
+    <section class="page" id="page-path" aria-labelledby="path-title">
+      <div class="page-hero compact-hero">
+        <div><span class="eyebrow light">YOUR LEARNING MAP</span><h1 id="path-title">A clear route through the core 1,000.</h1><p>Twenty small units. Every band adds more vocabulary, faster listening, and more demanding sentence work.</p></div>
+        <div class="path-summary"><span>Overall mastery</span><strong id="path-overall">0%</strong><div class="mini-progress"><i id="path-overall-bar"></i></div></div>
+      </div>
+      <div class="level-legend" aria-label="Path legend"><span><i class="legend-new"></i>Not started</span><span><i class="legend-active"></i>In progress</span><span><i class="legend-done"></i>Strong</span></div>
+      <div class="level-stack" id="level-stack"></div>
+      <aside class="method-card">
+        <div><span class="eyebrow">HOW PROGRESSION WORKS</span><h2>Mastery, not scrolling.</h2></div>
+        <ol><li><b>Recognize</b><span>Understand the word and its sentence.</span></li><li><b>Recall</b><span>Retrieve it with spaced flashcards.</span></li><li><b>Pronounce</b><span>Say it and compare the browser transcript.</span></li><li><b>Use</b><span>Meet it again in dialogue and free practice.</span></li></ol>
+      </aside>
+    </section>
+
+    <section class="page" id="page-words" aria-labelledby="words-title">
+      <div class="content-heading">
+        <div><span class="eyebrow">THE CONVERSATIONAL CORE</span><h1 id="words-title">All 1,000 words, in context.</h1><p>Search, filter, listen, and open any entry for its sentence and Belgian usage note.</p></div>
+        <div class="word-total"><strong>1,000</strong><span>unique entries</span></div>
+      </div>
+      <div class="filter-bar">
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="word-search" type="search" placeholder="Search Dutch or English…" autocomplete="off"></label>
+        <label><span class="sr-only">Level</span><select id="word-level"><option value="all">All levels</option><option>A0</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></label>
+        <label><span class="sr-only">Category</span><select id="word-category"><option value="all">All categories</option></select></label>
+      </div>
+      <div class="word-results-line"><span id="word-result-count">1,000 results</span><button id="word-random" class="quiet-button">Surprise me</button></div>
+      <div class="word-list" id="word-list"></div>
+      <div class="pagination" id="word-pagination"></div>
+    </section>
+
+    <section class="page" id="page-cards" aria-labelledby="cards-title">
+      <div class="practice-layout">
+        <div class="practice-main">
+          <div class="practice-heading"><div><span class="eyebrow">SPACED REVIEW</span><h1 id="cards-title">Build recall, one card at a time.</h1></div><label>Deck<select id="card-level"><option value="adaptive">Adaptive mix</option><option>A0</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option value="belgian">Belgian Dutch</option></select></label></div>
+          <div class="session-progress"><div><i id="card-session-bar"></i></div><span id="card-session-count">0 / 10 today</span></div>
+          <div class="flashcard-scene" id="flashcard-scene" role="button" tabindex="0" aria-label="Flip flashcard">
+            <article class="flashcard" id="flashcard">
+              <div class="flash-face flash-front">
+                <div class="card-meta"><span id="card-level-badge">A0</span><span id="card-variant">GENERAL DUTCH</span></div>
+                <button class="audio-button" id="card-audio-word" aria-label="Hear word">)))</button>
+                <div class="card-word" id="card-word">ik</div>
+                <div class="card-ipa" id="card-ipa">/ɪk/</div>
+                <div class="flip-hint">Tap to reveal <span>↻</span></div>
+              </div>
+              <div class="flash-face flash-back">
+                <div class="card-meaning" id="card-meaning">I</div>
+                <div class="example-block"><p id="card-example"></p><span id="card-translation"></span></div>
+                <div class="usage-note" id="card-note"></div>
+                <button class="audio-button sentence-audio" id="card-audio-sentence" aria-label="Hear sentence">Hear sentence )))</button>
+              </div>
+            </article>
+          </div>
+          <div class="rating-row" id="rating-row" aria-label="Rate your recall">
+            <button data-quality="0" class="rating again"><b>Again</b><span>&lt; 1 min</span></button>
+            <button data-quality="1" class="rating hard"><b>Hard</b><span>short</span></button>
+            <button data-quality="2" class="rating good"><b>Good</b><span>normal</span></button>
+            <button data-quality="3" class="rating easy"><b>Easy</b><span>long</span></button>
+          </div>
+          <p class="rating-help">Reveal the answer, then rate honestly. Your rating changes the next interval and trains the local study model.</p>
+        </div>
+        <aside class="practice-sidebar">
+          <span class="eyebrow">WHY THIS CARD?</span><p id="card-reason">Starting with a high-value word to learn what you know.</p>
+          <hr>
+          <span class="eyebrow">SESSION</span>
+          <dl><div><dt>Reviewed</dt><dd id="session-reviewed">0</dd></div><div><dt>Remembered</dt><dd id="session-accuracy">—</dd></div><div><dt>XP earned</dt><dd id="session-xp">0</dd></div></dl>
+          <button class="quiet-button full" id="reset-session">New 10-card session</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="page" id="page-speak" aria-labelledby="speak-title">
+      <div class="content-heading speak-heading"><div><span class="eyebrow">BELGIAN SOUND & RHYTHM</span><h1 id="speak-title">Train your ear. Then answer out loud.</h1><p>Playback prefers a Belgian-Dutch browser voice. Pronunciation scoring measures transcript similarity—it is helpful practice, not a native-speaker certification.</p></div></div>
+      <div class="subnav" role="tablist" aria-label="Speaking activities">
+        <button class="subnav-item active" data-speak-tab="repeat" role="tab">Listen & repeat</button>
+        <button class="subnav-item" data-speak-tab="coach" role="tab">Pronunciation coach</button>
+        <button class="subnav-item" data-speak-tab="dialogues" role="tab">Mini-dialogues</button>
+      </div>
+
+      <div class="speak-panel active" id="speak-repeat">
+        <div class="repeat-layout">
+          <article class="sound-stage">
+            <div class="sound-stage-top"><span class="level-badge" id="repeat-level">A0</span><button class="quiet-button" id="repeat-next">Next sentence →</button></div>
+            <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="repeat-word" id="repeat-word"></p><p class="repeat-ipa" id="repeat-ipa"></p>
+            <h2 id="repeat-sentence"></h2><p id="repeat-translation"></p>
+            <div class="playback-controls"><button class="play-button" id="repeat-play"><span>▶</span> Play sentence</button><label>Speed<input id="speech-rate" type="range" min="0.65" max="1.15" step="0.05" value="0.9"></label></div>
+          </article>
+          <aside class="sound-notes"><span class="eyebrow">FLEMISH LISTENING TIP</span><h3 id="sound-tip-title">Hear the whole phrase.</h3><p id="sound-tip">Do not isolate every sound. First copy the sentence rhythm, then slow down and work on the difficult word.</p><div class="voice-status"><span id="voice-dot"></span><p><b id="voice-name">Finding a Dutch voice…</b><small id="voice-detail">Your browser chooses the available voice.</small></p></div></aside>
+        </div>
+      </div>
+
+      <div class="speak-panel" id="speak-coach">
+        <div class="coach-layout">
+          <article class="coach-card">
+            <span class="eyebrow">YOUR TARGET</span>
+            <h2 id="coach-target"></h2><p id="coach-translation"></p>
+            <div class="coach-actions"><button class="secondary-button" id="coach-hear">))) Hear it</button><button class="record-button" id="coach-record"><span class="record-dot"></span><b>Start speaking</b></button><button class="quiet-button" id="coach-next">New target</button></div>
+            <p class="mic-note" id="mic-note">Use a recent Chrome or Edge browser and allow microphone access. No recording is stored by this app.</p>
+          </article>
+          <aside class="feedback-card" id="speech-feedback">
+            <div class="score-orb"><strong id="speech-score">—</strong><span>match</span></div>
+            <div><span class="eyebrow">FEEDBACK</span><h3 id="speech-verdict">Ready when you are.</h3><p id="speech-transcript">Your transcript and a practical tip will appear here.</p><div id="speech-missing" class="word-diff"></div><p class="speech-tip" id="speech-tip"></p></div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="speak-panel" id="speak-dialogues">
+        <div class="dialogue-layout"><aside class="dialogue-menu" id="dialogue-menu"></aside><article class="dialogue-card"><div class="dialogue-heading"><div><span class="eyebrow" id="dialogue-kicker"></span><h2 id="dialogue-title"></h2></div><button class="secondary-button" id="dialogue-play">▶ Play all</button></div><div id="dialogue-lines"></div></article></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-lab" aria-labelledby="lab-title">
+      <div class="lab-hero">
+        <div><span class="eyebrow light">PRIVATE · ON-DEVICE · EXPLAINABLE</span><h1 id="lab-title">AI Study Lab <span>✦</span></h1><p>A small neural model studies your recall, speed, lapses, review timing, and speaking results. It stays in this browser and tells you why it recommends something.</p></div>
+        <div class="model-pill"><i></i><span>Model status</span><strong id="model-status">Calibrating</strong></div>
+      </div>
+      <div class="lab-metrics">
+        <article><span>Predicted recall</span><strong id="lab-recall">—</strong><small>across practiced words</small></article>
+        <article><span>Learning signals</span><strong id="lab-signals">0</strong><small>ratings used locally</small></article>
+        <article><span>Due now</span><strong id="lab-due">0</strong><small>scheduled reviews</small></article>
+        <article><span>Speech average</span><strong id="lab-speech">—</strong><small>browser transcript match</small></article>
+      </div>
+      <div class="lab-grid">
+        <article class="lab-review-panel">
+          <div class="panel-top"><div><span class="eyebrow">NEXT BEST REVIEW</span><h2 id="lab-word">—</h2><p id="lab-ipa"></p></div><button class="audio-button dark-audio" id="lab-hear">)))</button></div>
+          <div class="lab-reason" id="lab-reason">Practice a few cards to create your first recommendation.</div>
+          <button class="reveal-button" id="lab-reveal">Reveal meaning</button>
+          <div class="lab-answer" id="lab-answer"></div>
+          <div class="lab-ratings" id="lab-ratings"><button data-quality="0">Again</button><button data-quality="1">Hard</button><button data-quality="2">Good</button><button data-quality="3">Easy</button></div>
+        </article>
+        <aside class="coach-insight-panel">
+          <span class="eyebrow">STUDY COACH</span><h2>What your pattern suggests</h2><div id="coach-insights"></div>
+          <div class="privacy-line"><span>⌁</span><p><b>Your data stays here.</b><small>No account, cloud database, voice recording, or API key.</small></p></div>
+        </aside>
+      </div>
+      <div class="model-details">
+        <div><span class="eyebrow">HOW THE MODEL DECIDES</span><h2>Useful AI should show its work.</h2></div>
+        <div class="signal-list"><span>Attempts</span><span>Accuracy</span><span>Time away</span><span>Word difficulty</span><span>Response speed</span><span>Lapses</span><span>Speech score</span></div>
+        <button class="quiet-button danger" id="clear-learning-data">Clear learning data</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Vlot Vlaams</strong><span>Made for learning Belgian Dutch with clarity.</span></div>
+    <p>Vocabulary selection combines a conversational Dutch subtitle frequency list with 50 curated Belgian-Dutch essentials. Meanings and IPA are enriched from Wiktionary data; bilingual examples come from Tatoeba where available. <a href="README.md">Methodology & credits</a>.</p>
+  </footer>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item active" data-page="home"><span>⌂</span>Home</button>
+    <button class="mobile-nav-item" data-page="path"><span>↗</span>Path</button>
+    <button class="mobile-nav-item" data-page="cards"><span>◇</span>Cards</button>
+    <button class="mobile-nav-item" data-page="speak"><span>)))</span>Speak</button>
+    <button class="mobile-nav-item" data-page="lab"><span>✦</span>AI Lab</button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="data/words.js?v=1"></script>
+  <script src="ml-engine.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
